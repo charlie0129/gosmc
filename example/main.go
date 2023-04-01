@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	c := gosmc.NewConnection()
+	c := gosmc.New()
 
 	// Open connection to SMC.
 	err := c.Open()
@@ -15,7 +15,7 @@ func main() {
 		panic(err)
 	}
 
-	// Close conncetion once we are done.
+	// Close connection once we are done.
 	defer c.Close()
 
 	// Write 0x2 to CH0B/CH0C (to disable battery charging)

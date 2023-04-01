@@ -20,7 +20,7 @@ import (
 )
 
 func main() {
-	c := gosmc.NewConnection()
+	c := gosmc.New()
 
 	// Open connection to SMC.
 	_ = c.Open()

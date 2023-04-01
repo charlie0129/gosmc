@@ -23,7 +23,7 @@ type cSMCVal struct {
 
 type Connection uint
 
-func NewConnection() *Connection {
+func New() *Connection {
 	c := Connection(0)
 	return &c
 }
