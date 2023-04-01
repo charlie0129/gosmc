@@ -13,7 +13,6 @@ import (
 
 type SMCVal struct {
 	Key      string
-	DataSize uint32
 	DataType string
 	Bytes    []byte
 }
@@ -80,11 +79,13 @@ func (c *Connection) Read(key string) (SMCVal, error) {
 		return SMCVal{}, fmt.Errorf("error when reading %s, ret=%d", key, ret)
 	}
 
+	bytes := C.GoBytes(unsafe.Pointer(&v.bytes), 32)
+	bytes = bytes[:uint32(v.dataSize)]
+
 	val := SMCVal{
 		Key:      C.GoString((*C.char)(unsafe.Pointer(&v.key))),
-		DataSize: uint32(v.dataSize),
 		DataType: C.GoString((*C.char)(unsafe.Pointer(&v.dataType))),
-		Bytes:    []byte(C.GoString((*C.char)(unsafe.Pointer(&v.bytes)))),
+		Bytes:    bytes,
 	}
 
 	return val, nil
