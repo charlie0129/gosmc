@@ -2,6 +2,7 @@ package gosmc
 
 /*
 #cgo LDFLAGS: -framework IOKit
+#include <stdlib.h>
 #include "smc.h"
 */
 import "C"
