@@ -8,6 +8,7 @@ package gosmc
 import "C"
 
 import (
+	"errors"
 	"fmt"
 	"unsafe"
 )
@@ -18,9 +19,9 @@ type SMCVal struct {
 	Bytes    []byte
 }
 
-type cSMCVal struct {
-	val C.SMCVal_t
-}
+var (
+	ErrKeyTooLong = errors.New("key too long")
+)
 
 type Connection uint
 
@@ -30,7 +31,6 @@ func New() *Connection {
 }
 
 func (c *Connection) Open() error {
-	// var conn C.uint
 	ret := int(C.SMCOpen((*C.uint)(unsafe.Pointer(c))))
 	// TODO: pass errors strings from C
 	if ret != 0 {
@@ -49,7 +49,7 @@ func (c *Connection) Close() error {
 
 func (c *Connection) Write(key string, val string) error {
 	if len(key) > 4 {
-		panic(fmt.Sprintf("key %s too long", key))
+		return ErrKeyTooLong
 	}
 
 	var ckey *C.char = C.CString(key)
@@ -67,7 +67,7 @@ func (c *Connection) Write(key string, val string) error {
 
 func (c *Connection) Read(key string) (SMCVal, error) {
 	if len(key) > 4 {
-		panic(fmt.Sprintf("key %s too long", key))
+		return SMCVal{}, ErrKeyTooLong
 	}
 
 	var ckey *C.char = C.CString(key)
