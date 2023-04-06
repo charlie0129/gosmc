@@ -19,11 +19,11 @@ func main() {
 	defer c.Close()
 
 	// Write 0x2 to CH0B/CH0C (to disable battery charging)
-	err = c.Write("CH0B", "02")
+	err = c.Write("CH0B", []byte{0x2})
 	if err != nil {
 		panic(err)
 	}
-	err = c.Write("CH0C", "02")
+	err = c.Write("CH0C", []byte{0x2})
 	if err != nil {
 		panic(err)
 	}

@@ -20,7 +20,7 @@ type SMCVal struct {
 }
 
 var (
-	ErrKeyTooLong = errors.New("key too long")
+	ErrKeyLength = errors.New("key must be 4 characters long")
 )
 
 type Connection uint
@@ -47,17 +47,17 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-func (c *Connection) Write(key string, val string) error {
-	if len(key) > 4 {
-		return ErrKeyTooLong
+func (c *Connection) Write(key string, val []byte) error {
+	if len(key) != 4 {
+		return ErrKeyLength
 	}
 
 	var ckey *C.char = C.CString(key)
-	var cval *C.char = C.CString(val)
+	var cval unsafe.Pointer = C.CBytes(val)
 	defer C.free(unsafe.Pointer(ckey))
-	defer C.free(unsafe.Pointer(cval))
+	defer C.free(cval)
 
-	ret := int(C.SMCWriteSimple(ckey, cval, C.uint(*c)))
+	ret := int(C.SMCWriteSimple(ckey, (*C.uchar)(cval), C.int(len(val)), C.uint(*c)))
 	if ret != 0 {
 		return fmt.Errorf("error when writing %s to %s, ret=%d", val, key, ret)
 	}
@@ -66,8 +66,8 @@ func (c *Connection) Write(key string, val string) error {
 }
 
 func (c *Connection) Read(key string) (SMCVal, error) {
-	if len(key) > 4 {
-		return SMCVal{}, ErrKeyTooLong
+	if len(key) != 4 {
+		return SMCVal{}, ErrKeyLength
 	}
 
 	var ckey *C.char = C.CString(key)

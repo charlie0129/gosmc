@@ -29,7 +29,7 @@ func main() {
 	defer c.Close()
 
 	// Write 0x2 to CH0B or CH0C (to disable battery charging)
-	_ = c.Write("CH0B", "02")
+	_ = c.Write("CH0B", []byte{0x2})
 
 	// Read value from CH0B
 	v, _ := c.Read("CH0B")

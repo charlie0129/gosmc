@@ -89,7 +89,7 @@ typedef struct {
 } SMCVal_t;
 
 kern_return_t SMCReadKey(UInt32Char_t key, SMCVal_t* val);
-kern_return_t SMCWriteSimple(char* key, char* wvalue, io_connect_t conn);
+kern_return_t SMCWriteSimple(char* key, unsigned char* bytes, int len, io_connect_t conn);
 
 kern_return_t SMCOpen(io_connect_t* conn);
 kern_return_t SMCClose(io_connect_t conn);

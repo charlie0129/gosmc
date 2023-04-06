@@ -235,7 +235,7 @@ kern_return_t SMCWriteKey2(SMCVal_t writeVal, io_connect_t conn)
     return kIOReturnSuccess;
 }
 
-kern_return_t SMCWriteSimple(char* key, char* wvalue, io_connect_t conn)
+kern_return_t SMCWriteSimple(char* key, unsigned char* bytes, int len, io_connect_t conn)
 {
     if (strlen(key) > 4) {
         return 1;
@@ -244,12 +244,13 @@ kern_return_t SMCWriteSimple(char* key, char* wvalue, io_connect_t conn)
     kern_return_t result;
     SMCVal_t val;
     int i;
-    char c[3];
-    for (i = 0; i < strlen(wvalue); i++) {
-        sprintf(c, "%c%c", wvalue[i * 2], wvalue[(i * 2) + 1]);
-        val.bytes[i] = (int)strtol(c, NULL, 16);
+    if (len > 32) {
+        return 1;
     }
-    val.dataSize = i / 2;
+    for (i = 0; i < len; i++) {
+        val.bytes[i] = bytes[i];
+    }
+    val.dataSize = len;
     sprintf(val.key, key);
     result = SMCWriteKey2(val, conn);
     if (result != kIOReturnSuccess)
