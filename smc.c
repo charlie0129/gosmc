@@ -21,7 +21,7 @@
 
 #include "smc.h"
 #include <IOKit/IOKitLib.h>
-#include <libkern/OSAtomic.h>
+#include <os/lock.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +35,7 @@ struct {
 } g_keyInfoCache[KEY_INFO_CACHE_SIZE];
 
 int g_keyInfoCacheCount = 0;
-OSSpinLock g_keyInfoSpinLock = 0;
+os_unfair_lock g_keyInfoLock = OS_UNFAIR_LOCK_INIT;
 
 kern_return_t SMCCall2(int index, SMCKeyData_t* inputStructure, SMCKeyData_t* outputStructure, io_connect_t conn);
 
@@ -140,7 +140,7 @@ kern_return_t SMCGetKeyInfo(UInt32 key, SMCKeyData_keyInfo_t* keyInfo, io_connec
     kern_return_t result = kIOReturnSuccess;
     int i = 0;
 
-    OSSpinLockLock(&g_keyInfoSpinLock);
+    os_unfair_lock_lock(&g_keyInfoLock);
 
     for (; i < g_keyInfoCacheCount; ++i) {
         if (key == g_keyInfoCache[i].key) {
@@ -168,7 +168,7 @@ kern_return_t SMCGetKeyInfo(UInt32 key, SMCKeyData_keyInfo_t* keyInfo, io_connec
         }
     }
 
-    OSSpinLockUnlock(&g_keyInfoSpinLock);
+    os_unfair_lock_unlock(&g_keyInfoLock);
 
     return result;
 }
@@ -184,7 +184,7 @@ kern_return_t SMCReadKey2(UInt32Char_t key, SMCVal_t* val, io_connect_t conn)
     memset(val, 0, sizeof(SMCVal_t));
 
     inputStructure.key = _strtoul(key, 4, 16);
-    sprintf(val->key, key);
+    sprintf(val->key, "%s", key);
 
     result = SMCGetKeyInfo(inputStructure.key, &outputStructure.keyInfo, conn);
     if (result != kIOReturnSuccess) {
@@ -251,7 +251,7 @@ kern_return_t SMCWriteSimple(char* key, unsigned char* bytes, int len, io_connec
         val.bytes[i] = bytes[i];
     }
     val.dataSize = len;
-    sprintf(val.key, key);
+    sprintf(val.key, "%s", key);
     result = SMCWriteKey2(val, conn);
     if (result != kIOReturnSuccess)
         printf("Error: SMCWriteKey() = %08x\n", result);
