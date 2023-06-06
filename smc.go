@@ -21,6 +21,7 @@ type SMCVal struct {
 
 var (
 	ErrKeyLength = errors.New("key must be 4 characters long")
+	ErrNoData    = errors.New("key has no data, check if it is valid")
 )
 
 type Connection uint
@@ -78,6 +79,10 @@ func (c *Connection) Read(key string) (SMCVal, error) {
 	ret := int(C.SMCReadKey2(ckey, (*C.SMCVal_t)(unsafe.Pointer(&v)), C.uint(*c)))
 	if ret != 0 {
 		return SMCVal{}, fmt.Errorf("error when reading %s, ret=%d", key, ret)
+	}
+
+	if uint32(v.dataSize) == 0 {
+		return SMCVal{}, ErrNoData
 	}
 
 	bytes := C.GoBytes(unsafe.Pointer(&v.bytes), 32)

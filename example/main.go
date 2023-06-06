@@ -1,7 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/charlie0129/gosmc"
 )
@@ -18,28 +21,44 @@ func main() {
 	// Close connection once we are done.
 	defer c.Close()
 
-	// Write 0x2 to CH0B/CH0C (to disable battery charging)
-	err = c.Write("CH0B", []byte{0x2})
+	key := ""
+	val := ""
+	flag.StringVar(&key, "k", "", "SMC key to read/write")
+	flag.StringVar(&val, "v", "", "Value to write to SMC key")
+	flag.Parse()
+
+	if key == "" {
+		fmt.Printf("You must specify a key to read/write with -k\n")
+		os.Exit(1)
+	}
+
+	// Read value from SMC key.
+	if val == "" {
+		v, err := c.Read(key)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s: %v\n", v.Key, v.Bytes)
+		return
+	}
+
+	// Write value to SMC key.
+	if len(val)%2 != 0 {
+		fmt.Printf("Value must be hex encoded\n")
+		os.Exit(1)
+	}
+
+	b := make([]byte, len(val)/2)
+	for i := 0; i < len(val); i += 2 {
+		v, err := strconv.ParseUint(val[i:i+2], 16, 8)
+		if err != nil {
+			panic(err)
+		}
+		b[i/2] = byte(v)
+	}
+
+	err = c.Write(key, b)
 	if err != nil {
 		panic(err)
 	}
-	err = c.Write("CH0C", []byte{0x2})
-	if err != nil {
-		panic(err)
-	}
-
-	// Read from CH0B/CH0C to check if it is written.
-	v, err := c.Read("CH0B")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Read from CH0B: %#v\n", v)
-
-	v, err = c.Read("CH0C")
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Read from CH0C: %#v\n", v)
 }
