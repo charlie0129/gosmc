@@ -252,9 +252,6 @@ kern_return_t SMCWriteSimple(char* key, unsigned char* bytes, int len, io_connec
     }
     val.dataSize = len;
     sprintf(val.key, "%s", key);
-    result = SMCWriteKey2(val, conn);
-    if (result != kIOReturnSuccess)
-        printf("Error: SMCWriteKey() = %08x\n", result);
 
-    return result;
+    return SMCWriteKey2(val, conn);
 }
