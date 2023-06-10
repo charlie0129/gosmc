@@ -12,8 +12,8 @@ import (
 func main() {
 	key := ""
 	val := ""
-	flag.StringVar(&key, "k", "", "SMC key to read/write")
-	flag.StringVar(&val, "v", "", "Value to write to SMC key. If not specified, read value from SMC key")
+	flag.StringVar(&key, "k", "", "SMC key to read/write. Value will be printed as hex.")
+	flag.StringVar(&val, "v", "", "Value (as hex) to write to SMC key. If not specified, read value from SMC key")
 	flag.Parse()
 
 	if key == "" {
@@ -37,7 +37,11 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%v\n", v.Bytes)
+		// Print bytes as hex.
+		for _, b := range v.Bytes {
+			fmt.Printf("%02x ", b)
+		}
+		fmt.Println()
 		return
 	}
 
