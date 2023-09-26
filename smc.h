@@ -24,8 +24,9 @@
 
 #include <IOKit/IOKitLib.h>
 
-#define CMD_TOOL
-#define VERSION "0.01"
+#if (MAC_OS_X_VERSION_MIN_REQUIRED < 120000) // Before macOS 12 Monterey
+       #define  IOMasterPort
+#endif
 
 #define OP_NONE 0
 #define OP_LIST 1

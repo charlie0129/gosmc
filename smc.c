@@ -28,6 +28,7 @@
 #include <unistd.h>
 
 // Cache the keyInfo to lower the energy impact of SMCReadKey() / SMCReadKey2()
+// TODO: move this logic to Go side.
 #define KEY_INFO_CACHE_SIZE 100
 struct {
     UInt32 key;
@@ -91,7 +92,7 @@ kern_return_t SMCOpen(io_connect_t* conn)
     io_iterator_t iterator;
     io_object_t device;
 
-    IOMasterPort(MACH_PORT_NULL, &masterPort);
+    IOMainPort(MACH_PORT_NULL, &masterPort);
 
     CFMutableDictionaryRef matchingDictionary = IOServiceMatching("AppleSMC");
     result = IOServiceGetMatchingServices(masterPort, matchingDictionary, &iterator);
