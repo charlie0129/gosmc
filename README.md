@@ -8,8 +8,6 @@ This uses C-binding to Go, so you will need to use `cgo` for it to work.
 
 run `go get github.com/charlie0129/gosmc`
 
-See `example/main.go` for a complete example.
-
 ```go
 package main
 
@@ -36,8 +34,19 @@ func main() {
 }
 ```
 
+## CLI
+
+There is a command line program included to RW SMC. Run `make` to build it. The binary will be `bin/gosmc`.
+
+Example:
+
+```shell
+# Read from CH0B
+bin/gosmc -k CH0B
+# Write 0x02 to CH0B
+bin/gosmc -k CH0B -v 02
+```
+
 ## Future work
 
 Currently, it only does read and write using byte array. It provides no data conversion to common types like `int`, `float`, `string`. It can be beneficial to provide such conversions.
-
-A CLI using this library is also a good way to go.
