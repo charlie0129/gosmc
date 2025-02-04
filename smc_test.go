@@ -9,7 +9,7 @@ import (
 func TestSMC(t *testing.T) {
 	a := assert.New(t)
 
-	c := New()
+	c := NewAppleSMCConn()
 	err := c.Open()
 	a.Nil(err)
 

@@ -20,7 +20,7 @@ func main() {
 		log.Fatal("You must specify a key to read/write with -k")
 	}
 
-	c := gosmc.New()
+	c := gosmc.NewAppleSMCConn()
 
 	// Open connection to SMC.
 	err := c.Open()
