@@ -24,14 +24,14 @@ var (
 	ErrNoData    = errors.New("key has no data, check if it is valid")
 )
 
-type Connection uint
+type AppleSMCConn uint
 
-func New() *Connection {
-	c := Connection(0)
+func New() Conn {
+	c := AppleSMCConn(0)
 	return &c
 }
 
-func (c *Connection) Open() error {
+func (c *AppleSMCConn) Open() error {
 	ret := int(C.SMCOpen((*C.uint)(unsafe.Pointer(c))))
 	// TODO: pass errors strings from C
 	if ret != 0 {
@@ -40,7 +40,7 @@ func (c *Connection) Open() error {
 	return nil
 }
 
-func (c *Connection) Close() error {
+func (c *AppleSMCConn) Close() error {
 	ret := int(C.SMCClose(C.uint(*c)))
 	if ret != 0 {
 		return fmt.Errorf("error when closing SMC, ret=%d", ret)
@@ -48,7 +48,7 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-func (c *Connection) Write(key string, val []byte) error {
+func (c *AppleSMCConn) Write(key string, val []byte) error {
 	if len(key) != 4 {
 		return ErrKeyLength
 	}
@@ -66,7 +66,7 @@ func (c *Connection) Write(key string, val []byte) error {
 	return nil
 }
 
-func (c *Connection) Read(key string) (SMCVal, error) {
+func (c *AppleSMCConn) Read(key string) (SMCVal, error) {
 	if len(key) != 4 {
 		return SMCVal{}, ErrKeyLength
 	}
