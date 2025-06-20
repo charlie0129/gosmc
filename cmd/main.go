@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 
 	"github.com/charlie0129/gosmc"
@@ -42,6 +44,11 @@ func main() {
 			fmt.Printf("%02x ", b)
 		}
 		fmt.Println()
+		if v.DataType == "flt " {
+			// Print bytes as float, e.g. key "PSTR"
+			fmt.Printf("%f ", math.Float32frombits(binary.LittleEndian.Uint32(v.Bytes)))
+			fmt.Println()
+		}
 		return
 	}
 
